@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { pool } from "@/db/db";
 
 const app = express();
 
@@ -15,12 +16,9 @@ app.use(
 app.use(cookieParser());
 
 app.get("/", async (req, res) => {
-  res.send("Hello World!");
+  const result = await pool.query("SELECT current_database()");
+  res.json({ message: "Hello World!", database_name: result.rows[0].current_database });
 });
-
-export const printHelloWorld = (input: string) => {
-  console.log(`Hello World! ${input}`);
-};
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
