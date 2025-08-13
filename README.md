@@ -42,7 +42,8 @@ DATABASE=your_database_name
 DB_PORT=5432
 
 ```bash
-npm run start
+cd server
+docker compose up -d
 cd ..
 ```
 
