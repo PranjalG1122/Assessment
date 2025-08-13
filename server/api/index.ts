@@ -1,7 +1,10 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { pool } from "@/db/db";
+import type { NextFunction, Request, Response } from "express";
+import { config } from "dotenv";
+import { JSONToQuery } from "jsontoquery";
+config();
 
 const app = express();
 
@@ -15,12 +18,19 @@ app.use(
 );
 app.use(cookieParser());
 
-app.get("/", async (req, res) => {
-  const result = await pool.query("SELECT current_database()");
-  res.json({ message: "Hello World!", database_name: result.rows[0].current_database });
+app.post("/query", async (req: Request, res: Response) => {
+  try {
+    const query = req.body;
+    const jsonToQuery = new JSONToQuery(query);
+    const result = await jsonToQuery.execute();
+    res.send(result);
+  } catch (error: any) {
+    console.error(error);
+    res.status(500).send({ success: false, error: error.message || "Something went wrong!" });
+  }
 });
 
-const PORT = process.env.PORT || 5000;
+const PORT = 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
